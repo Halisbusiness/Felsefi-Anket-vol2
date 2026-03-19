@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Felsefi Anket</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f3f0;--surface:#fff;--surface2:#ede9e4;--border:#ddd9d4;
+  --accent:#d93a22;--text:#1a1614;--text2:#6b6460;--text3:#aaa59f;
+  --green:#1e9e4a;--red:#d93a22;--blue:#2563eb;--radius:16px;
+  --shadow:0 1px 4px rgba(0,0,0,0.08);
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0f0e0e;--surface:#1a1818;--surface2:#242121;--border:#2e2b2b;
+  --accent:#e8442a;--text:#f0ece8;--text2:#9a9490;--text3:#5a5654;
+  --green:#3ecf6a;--red:#e8442a;--blue:#60a5fa;
+  --shadow:0 1px 4px rgba(0,0,0,0.4);
+}}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:375px;max-width:375px;min-height:667px;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+.screen{display:none;width:375px;min-height:667px;flex-direction:column;animation:fadeIn .22s ease;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.topbar-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--text);}
+.topbar-right{display:flex;gap:8px;}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:none;background:var(--surface2);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.icon-btn:active{background:var(--border);}
+.icon-btn.danger{background:rgba(217,58,34,.12);color:var(--red);}
+.icon-btn.stats-btn{background:rgba(37,99,235,.1);color:var(--blue);}
+@media(prefers-color-scheme:dark){.icon-btn.danger{background:#2a1a1a;}.icon-btn.stats-btn{background:rgba(96,165,250,.1);}}
+
+/* HOME */
+.home-header{padding:18px 20px 10px;flex-shrink:0;}
+.home-title{font-family:'Playfair Display',serif;font-size:27px;font-weight:700;line-height:1.1;}
+.home-title span{color:var(--accent);}
+.home-stats{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text2);}
+.stat-chip b{color:var(--text);}
+.home-tabs{display:flex;padding:10px 14px 0;gap:8px;flex-shrink:0;}
+.tab-btn{flex:1;height:34px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
+.tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
+.list-scroll{flex:1;overflow-y:auto;padding:8px 14px 90px;}
+.survey-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;margin-bottom:9px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.survey-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);border-radius:3px 0 0 3px;}
+.survey-card.rejected::before{background:var(--text3);}
+.survey-card:active{background:var(--surface2);transform:scale(.98);}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.card-name{font-size:15px;font-weight:600;color:var(--text);flex:1;line-height:1.3;}
+.card-badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;flex-shrink:0;}
+.badge-done{background:rgba(30,158,74,.12);color:var(--green);}
+.badge-skip{background:rgba(0,0,0,.06);color:var(--text3);}
+@media(prefers-color-scheme:dark){.badge-done{background:#1a3a26;}.badge-skip{background:#2a2424;}}
+.card-meta{margin-top:5px;font-size:11px;color:var(--text3);}
+.card-preview{margin-top:7px;font-size:12px;color:var(--text2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.fab{position:fixed;bottom:24px;right:20px;width:54px;height:54px;background:var(--accent);border:none;border-radius:50%;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(217,58,34,.35);display:flex;align-items:center;justify-content:center;transition:transform .15s;z-index:100;}
+.fab:active{transform:scale(.91);}
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 32px;color:var(--text3);}
+.empty-icon{font-size:46px;margin-bottom:14px;opacity:.45;}
+.empty-title{font-size:16px;font-weight:600;color:var(--text2);margin-bottom:5px;}
+.empty-sub{font-size:13px;line-height:1.5;}
+
+/* NEW SURVEY */
+.new-body{flex:1;padding:22px 20px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;}
+.field-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.text-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;resize:none;outline:none;transition:border-color .15s;}
+.text-input::placeholder{color:var(--text3);}
+.text-input:focus{border-color:var(--accent);}
+.desc-text{font-size:13px;color:var(--text2);line-height:1.5;}
+.desc-text b{color:var(--text);}
+.person-count-row{display:flex;align-items:center;gap:10px;margin-top:4px;}
+.count-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.count-display{font-size:22px;font-weight:700;color:var(--text);min-width:36px;text-align:center;}
+.person-labels-area{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+.person-label-row{display:flex;align-items:center;gap:8px;}
+.person-num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.decision-row{display:flex;gap:11px;margin-top:8px;}
+.decision-btn{flex:1;height:62px;border:none;border-radius:14px;font-size:26px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;}
+.decision-btn span{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+.btn-reject{background:rgba(217,58,34,.08);border:1.5px solid rgba(217,58,34,.22);color:var(--red);}
+.btn-reject span{color:rgba(217,58,34,.45);}
+.btn-accept{background:rgba(30,158,74,.08);border:1.5px solid rgba(30,158,74,.22);color:var(--green);}
+.btn-accept span{color:rgba(30,158,74,.45);}
+@media(prefers-color-scheme:dark){
+  .btn-reject{background:#2a1a1a;border-color:#4a2a2a;}.btn-reject span{color:#7a4040;}
+  .btn-accept{background:#1a2e22;border-color:#2a4a34;}.btn-accept span{color:#3a6a4a;}
+}
+
+/* QUESTION */
+.q-progress-bar{height:3px;background:var(--border);flex-shrink:0;}
+.q-progress-fill{height:100%;background:var(--accent);transition:width .3s ease;border-radius:0 2px 2px 0;}
+.q-progress-fill.bonus{background:var(--blue);}
+.q-header{padding:13px 20px 8px;flex-shrink:0;}
+.q-category{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:3px;}
+.q-category.bonus{color:var(--blue);}
+.q-counter{font-size:12px;color:var(--text3);}
+.q-person-tag{display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--text2);margin-top:4px;}
+.q-body{flex:1;padding:14px 20px;display:flex;flex-direction:column;overflow-y:auto;}
+.q-text{font-family:'Playfair Display',serif;font-size:21px;font-weight:600;line-height:1.35;color:var(--text);margin-bottom:22px;flex-shrink:0;}
+.q-options{display:flex;flex-direction:column;gap:9px;margin-bottom:14px;}
+.q-option{background:var(--surface);border:1.5px solid var(--border);border-radius:13px;padding:15px 17px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:11px;font-size:16px;font-weight:500;color:var(--text);}
+.q-option.selected{border-color:var(--accent);background:rgba(217,58,34,.07);}
+.q-option-dot{width:19px;height:19px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:all .15s;}
+.q-option.selected .q-option-dot{background:var(--accent);border-color:var(--accent);}
+.q-note-label{font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:500;}
+.q-note-area{flex:1;min-height:70px;background:var(--surface);border:1.5px solid var(--border);border-radius:13px;padding:13px 15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;outline:none;margin-bottom:13px;}
+.q-note-area::placeholder{color:var(--text3);font-style:italic;}
+.q-footer{padding:8px 20px 22px;flex-shrink:0;}
+.btn-next{width:100%;height:50px;background:var(--accent);border:none;border-radius:13px;color:#fff;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all .15s;}
+.btn-next:active{transform:scale(.97);opacity:.9;}
+.btn-next.bonus{background:var(--blue);}
+
+/* BONUS SCREEN */
+#screen-bonus{background:var(--bg);align-items:center;justify-content:center;text-align:center;padding:36px 28px;}
+.bonus-icon{font-size:56px;margin-bottom:16px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
+.bonus-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:8px;}
+.bonus-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:28px;}
+.btn-bonus-yes{width:100%;height:50px;background:var(--blue);border:none;border-radius:13px;color:#fff;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:9px;}
+.btn-bonus-no{width:100%;height:50px;background:transparent;border:1px solid var(--border);border-radius:13px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;}
+
+/* DONE */
+#screen-done{align-items:center;justify-content:center;text-align:center;padding:40px 28px;}
+.done-icon{font-size:60px;margin-bottom:18px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.done-title{font-family:'Playfair Display',serif;font-size:25px;font-weight:700;margin-bottom:7px;}
+.done-sub{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:28px;}
+.btn-primary{width:100%;height:50px;background:var(--accent);border:none;border-radius:13px;color:#fff;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:9px;}
+.btn-secondary{width:100%;height:50px;background:transparent;border:1px solid var(--border);border-radius:13px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;}
+
+/* DETAIL */
+.detail-scroll{flex:1;overflow-y:auto;padding:0 15px 30px;}
+.detail-hero{padding:14px 3px 16px;}
+.detail-person{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;line-height:1.2;margin-bottom:5px;}
+.detail-meta{font-size:12px;color:var(--text3);}
+.detail-persons-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.person-chip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--text2);}
+.detail-section{margin-bottom:4px;}
+.detail-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);padding:11px 0 5px;border-bottom:1px solid var(--border);margin-bottom:7px;}
+.detail-section-title.bonus-title-sec{color:var(--blue);}
+.detail-q-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-bottom:7px;box-shadow:var(--shadow);}
+.detail-q-text{font-size:13px;color:var(--text2);line-height:1.4;margin-bottom:7px;}
+.detail-persons-answers{display:flex;flex-direction:column;gap:5px;}
+.detail-person-answer{display:flex;align-items:flex-start;gap:7px;}
+.dpa-label{font-size:11px;font-weight:600;color:var(--text3);flex-shrink:0;margin-top:3px;min-width:50px;}
+.detail-answer-chip{background:rgba(217,58,34,.1);color:var(--accent);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600;}
+.detail-note{font-size:12px;color:var(--text2);font-style:italic;margin-top:5px;padding-top:5px;border-top:1px solid var(--border);line-height:1.4;}
+.detail-skipped{color:var(--text3);font-size:12px;font-style:italic;}
+
+/* STATS SCREEN */
+#screen-stats{background:var(--bg);}
+.stats-scroll{flex:1;overflow-y:auto;padding:0 14px 30px;}
+.stats-hero{padding:14px 3px 16px;}
+.stats-hero-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:4px;}
+.stats-hero-sub{font-size:12px;color:var(--text3);}
+.stats-summary-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.stats-summary-card{flex:1;min-width:80px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;box-shadow:var(--shadow);}
+.ssc-num{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text);}
+.ssc-label{font-size:10px;color:var(--text3);margin-top:2px;}
+.stats-q-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:9px;box-shadow:var(--shadow);}
+.stats-q-text{font-size:13px;color:var(--text2);line-height:1.4;margin-bottom:10px;}
+.stats-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.stats-bar-label{font-size:12px;font-weight:600;color:var(--text);min-width:90px;flex-shrink:0;}
+.stats-bar-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.stats-bar-fill{height:100%;border-radius:4px;background:var(--accent);transition:width .5s ease;}
+.stats-bar-fill.green{background:var(--green);}
+.stats-bar-fill.blue{background:var(--blue);}
+.stats-bar-fill.gray{background:var(--text3);}
+.stats-bar-pct{font-size:12px;font-weight:600;color:var(--text2);min-width:34px;text-align:right;}
+.stats-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);padding:14px 0 8px;border-bottom:1px solid var(--border);margin-bottom:10px;}
+.stats-section-title.blue{color:var(--blue);}
+
+/* EDIT */
+#screen-edit{background:var(--bg);}
+.edit-scroll{flex:1;overflow-y:auto;padding:0 15px 20px;}
+.edit-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);padding:14px 3px 6px;border-bottom:1px solid var(--border);margin-bottom:10px;}
+.edit-field{margin-bottom:14px;}
+.edit-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.edit-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;outline:none;transition:border-color .15s;}
+.edit-input:focus{border-color:var(--accent);}
+.edit-quick-save{width:100%;height:40px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;}
+.edit-q-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 13px;margin-bottom:10px;box-shadow:var(--shadow);}
+.edit-q-text{font-size:13px;color:var(--text2);line-height:1.4;margin-bottom:9px;}
+.edit-person-section{background:var(--surface2);border-radius:10px;padding:10px;margin-bottom:8px;}
+.edit-person-label{font-size:11px;font-weight:700;color:var(--text3);margin-bottom:7px;text-transform:uppercase;letter-spacing:.8px;}
+.edit-opts{display:flex;gap:7px;margin-bottom:8px;flex-wrap:wrap;}
+.edit-opt-btn{flex:1;min-width:70px;height:36px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
+.edit-opt-btn.selected{border-color:var(--accent);background:rgba(217,58,34,.08);color:var(--accent);font-weight:600;}
+.edit-opt-btn.clear-sel{border-color:var(--border);background:transparent;color:var(--text3);font-size:12px;flex:none;min-width:50px;}
+.edit-note-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;resize:none;outline:none;min-height:48px;}
+.edit-note-input:focus{border-color:var(--accent);}
+.edit-note-input::placeholder{color:var(--text3);font-style:italic;}
+.edit-save-bar{padding:10px 15px 22px;flex-shrink:0;}
+.btn-save{width:100%;height:50px;background:var(--accent);border:none;border-radius:13px;color:#fff;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;}
+.btn-save:active{transform:scale(.97);opacity:.9;}
+
+/* DELETE SHEET */
+.delete-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;z-index:200;}
+.delete-overlay.open{display:flex;}
+.delete-sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:375px;animation:slideUp .25s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.delete-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:8px;}
+.delete-sub{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:22px;}
+.delete-btn{width:100%;height:50px;background:var(--red);border:none;border-radius:13px;color:#fff;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:9px;}
+.delete-cancel{width:100%;height:50px;background:transparent;border:1px solid var(--border);border-radius:13px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;}
+
+::-webkit-scrollbar{display:none;}
+.export-bar{padding:10px 14px 6px;flex-shrink:0;}
+.btn-import{width:100%;height:44px;background:rgba(37,99,235,0.1);border:1.5px solid rgba(37,99,235,0.25);border-radius:12px;color:#2563eb;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+@media(prefers-color-scheme:dark){.btn-import{background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.25);color:#60a5fa;}}
+#import-input{display:none;}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="home-header">
+    <div class="home-title">Felsefi<br><span>Anket</span></div>
+    <div class="home-stats">
+      <div class="stat-chip"><b id="stat-total">0</b> Anket</div>
+      <div class="stat-chip"><b id="stat-done">0</b> Tamamlandı</div>
+      <div class="stat-chip"><b id="stat-skip">0</b> Reddetti</div>
+    </div>
+  </div>
+  <div class="home-tabs">
+    <button class="tab-btn active" id="tab-list" onclick="switchTab('list')">Anketler</button>
+    <button class="tab-btn" id="tab-stats" onclick="switchTab('stats')">İstatistikler</button>
+  </div>
+  <div class="export-bar">
+    <input type="file" id="import-input" accept=".json" onchange="importData(event)">
+    <button class="btn-import" onclick="document.getElementById('import-input').click()">⬆️ Eski Verilerimi Aktar</button>
+  </div>
+  <div class="list-scroll" id="survey-list">
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">💭</div>
+      <div class="empty-title">Henüz anket yok</div>
+      <div class="empty-sub">Sağ alttaki + butonuna basarak ilk anketi başlat</div>
+    </div>
+  </div>
+  <div class="list-scroll" id="home-stats-panel" style="display:none;"></div>
+  <button class="fab" onclick="showScreen('new')">+</button>
+</div>
+
+<!-- NEW SURVEY -->
+<div id="screen-new" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="showScreen('home')">←</button>
+    <div class="topbar-title">Yeni Anket</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="new-body">
+    <div>
+      <div class="field-label">Anket Başlığı / Kişi Tanımı</div>
+      <textarea class="text-input" id="person-desc" rows="2"
+        placeholder="Örn: merdivendeki 3'lü kız grubu, mümin dede..."></textarea>
+    </div>
+    <div>
+      <div class="field-label">Kaç Kişiyle Yapılıyor?</div>
+      <div class="person-count-row">
+        <button class="count-btn" onclick="changeCount(-1)">−</button>
+        <div class="count-display" id="count-display">1</div>
+        <button class="count-btn" onclick="changeCount(1)">+</button>
+      </div>
+    </div>
+    <div id="person-labels-wrapper" style="display:none;">
+      <div class="field-label">Kişileri Ayırt Eden Etiketler</div>
+      <div class="desc-text" style="margin-bottom:8px;">Her kişi için kısa bir etiket yaz <b>(Örn: Erkek / Kadın, Ali / Ayşe)</b></div>
+      <div class="person-labels-area" id="person-labels-area"></div>
+    </div>
+    <div>
+      <div class="field-label">Katılım Kararı</div>
+      <div class="desc-text">Yanına gittin. Anket yapmak <b>istiyor mu?</b></div>
+      <div class="decision-row">
+        <button class="decision-btn btn-reject" onclick="rejectSurvey()">✕<span>Reddetti</span></button>
+        <button class="decision-btn btn-accept" onclick="startSurvey()">✓<span>Kabul Etti</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUESTION -->
+<div id="screen-question" class="screen">
+  <div class="q-progress-bar"><div class="q-progress-fill" id="q-progress"></div></div>
+  <div class="q-header">
+    <div class="q-category" id="q-category"></div>
+    <div class="q-counter" id="q-counter"></div>
+    <div class="q-person-tag" id="q-person-tag" style="display:none;"></div>
+  </div>
+  <div class="q-body">
+    <div class="q-text" id="q-text"></div>
+    <div class="q-options" id="q-options"></div>
+    <div class="q-note-label">📝 Uzun cevap notu (opsiyonel)</div>
+    <textarea class="q-note-area" id="q-note" placeholder="Verdiği uzun cevabı buraya özetle..."></textarea>
+  </div>
+  <div class="q-footer">
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Sonraki →</button>
+  </div>
+</div>
+
+<!-- BONUS DECISION -->
+<div id="screen-bonus" class="screen">
+  <div class="bonus-icon">✨</div>
+  <div class="bonus-title">Devam Et?</div>
+  <div class="bonus-sub">Ana sorular tamamlandı.<br>Bu kişiyle biraz daha sohbet etmek ister misin?<br><br>Özel ekstra sorular seni bekliyor 🎯</div>
+  <button class="btn-bonus-yes" onclick="startBonus()">Evet, devam et</button>
+  <button class="btn-bonus-no" onclick="finishSurveyFinal()">Hayır, bitir</button>
+</div>
+
+<!-- DONE -->
+<div id="screen-done" class="screen">
+  <div class="done-icon">✦</div>
+  <div class="done-title">Anket Tamamlandı</div>
+  <div class="done-sub" id="done-sub"></div>
+  <button class="btn-primary" onclick="finishAndGoHome()">Ana Sayfaya Dön</button>
+</div>
+
+<!-- DETAIL -->
+<div id="screen-detail" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="showScreen('home')">←</button>
+    <div class="topbar-title">Detay</div>
+    <div class="topbar-right">
+      <button class="icon-btn stats-btn" title="İstatistik" onclick="openSurveyStats(window._detailIdx)">📊</button>
+      <button class="icon-btn" title="Düzenle" onclick="openEdit(window._detailIdx)">✎</button>
+      <button class="icon-btn danger" title="Sil" onclick="openDeleteConfirm(window._detailIdx)">🗑</button>
+    </div>
+  </div>
+  <div class="detail-scroll" id="detail-content"></div>
+</div>
+
+<!-- STATS SCREEN (global) -->
+<div id="screen-stats" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="showScreen('home')">←</button>
+    <div class="topbar-title">İstatistikler</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="stats-scroll" id="stats-content"></div>
+</div>
+
+<!-- SURVEY STATS (single survey) -->
+<div id="screen-survey-stats" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="openDetail(window._detailIdx)">←</button>
+    <div class="topbar-title">Anket İstatistiği</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="stats-scroll" id="survey-stats-content"></div>
+</div>
+
+<!-- EDIT -->
+<div id="screen-edit" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="openDetail(window._editIdx)">←</button>
+    <div class="topbar-title">Düzenle</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="edit-scroll" id="edit-content"></div>
+  <div class="edit-save-bar">
+    <button class="btn-save" onclick="saveEdit()">Kaydet ✓</button>
+  </div>
+</div>
+
+<!-- DELETE SHEET -->
+<div class="delete-overlay" id="delete-overlay">
+  <div class="delete-sheet">
+    <div class="delete-title">Anketi Sil</div>
+    <div class="delete-sub" id="delete-sub"></div>
+    <button class="delete-btn" onclick="confirmDelete()">Evet, Sil</button>
+    <button class="delete-cancel" onclick="closeDeleteConfirm()">Vazgeç</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// VERİ
+// ═══════════════════════════════════════
+const QUESTIONS=[
+  {cat:"İnsan Doğası",     text:"İnsan özünde iyi midir, yoksa kötü mü?",                                     opts:["İyi","Kötü"]},
+  {cat:"İnsan Doğası",     text:"Özgür irade gerçek midir, yoksa her şey önceden belirlenmiş midir?",         opts:["Özgür irade var","Her şey belirlendi"]},
+  {cat:"İnsan Doğası",     text:"İnsanı insan yapan şey nedir — Akıl mı, Duygu mu?",                         opts:["Akıl","Duygu"]},
+  {cat:"İnsan Doğası",     text:"İnsan doğası değişebilir mi, yoksa sabit midir?",                            opts:["Değişebilir","Sabittir"]},
+  {cat:"Ahlak & Değerler", text:"Doğru ve yanlışı kim belirler — İrade mi, Tanrı mı?",                       opts:["İrade","Tanrı"]},
+  {cat:"Ahlak & Değerler", text:"Mutlu olmak için ahlâklı olmak şart mıdır?",                                 opts:["Evet","Hayır"]},
+  {cat:"Ahlak & Değerler", text:"Kötü bir amaç için iyi bir şey yapılabilir mi?",                            opts:["Evet","Hayır"]},
+  {cat:"Ahlak & Değerler", text:"Vicdanınız mı, yoksa toplumun kuralları mı daha bağlayıcıdır?",             opts:["Vicdan","Toplum kuralları"]},
+  {cat:"Toplum & Adalet",  text:"Çoğunluğun istediği her zaman doğru mudur?",                                 opts:["Evet","Hayır"]},
+  {cat:"Toplum & Adalet",  text:"Adaletsiz bir yasaya uymak zorunda mıyız?",                                  opts:["Evet","Hayır"]},
+  {cat:"Toplum & Adalet",  text:"Eşitlik mi, özgürlük mü daha önemlidir?",                                   opts:["Eşitlik","Özgürlük"]},
+  {cat:"Toplum & Adalet",  text:"Devlet bireyin iyiliği için onun özgürlüğünü kısıtlayabilir mi?",           opts:["Evet","Hayır"]},
+  {cat:"Tanrı & Varoluş",  text:"Bütün evren tek bir amaca göre mi yaratıldı?",                               opts:["Evet","Hayır"]},
+  {cat:"Tanrı & Varoluş",  text:"Tanrı yoksa, ahlâkın temeli ne olabilir?",                                  opts:["Akıl & Vicdan","Hiçbir şey olamaz"]},
+  {cat:"Tanrı & Varoluş",  text:"İnsan hayatının anlamı var mıdır, yoksa biz mi anlam yükleriz?",            opts:["Anlamı var","Biz yükleriz"]},
+  {cat:"Bilgi & Gerçek",   text:"Gerçek herkes için aynı mıdır?",                                             opts:["Evet","Hayır"]},
+  {cat:"Bilgi & Gerçek",   text:"Hiçbir şeyi kesin olarak bilebilir miyiz?",                                  opts:["Bilebiliriz","Bilemeyiz"]},
+  {cat:"Bilgi & Gerçek",   text:"Acı veren bir gerçek mi, yoksa rahatlatıcı bir yalan mı tercih edilir?",    opts:["Gerçek","Yalan"]},
+  {cat:"Özgürlük & Güç",   text:"Tam özgürlük mümkün müdür, yoksa her zaman bir sınır var mıdır?",           opts:["Mümkün","Sınır var"]},
+  {cat:"Özgürlük & Güç",   text:"Güç insanı bozar mı, yoksa sadece içindekini ortaya çıkarır mı?",           opts:["Bozar","Ortaya çıkarır"]},
+  {cat:"Özgürlük & Güç",   text:"Boyun eğmek mi, yoksa özgürce yanılmak mı daha insancadır?",                opts:["Boyun eğmek","Özgürce yanılmak"]},
+];
+
+// Ekstra (bonus) sorular — doğal, ilgi çekici, niyet belli etmeyen
+const BONUS_QUESTIONS=[
+  {cat:"Bonus",text:"Hayatında en çok neyin peşindesin — anlam mı, başarı mı, mutluluk mu?",          opts:["Anlam","Başarı","Mutluluk"]},
+  {cat:"Bonus",text:"Sence insanlar temelde yalnız mı, yoksa bağlantı içinde mi yaşıyor?",            opts:["Yalnız","Bağlantı içinde"]},
+  {cat:"Bonus",text:"Çok iyi bir kitap okudun mu? Hangisi seni en çok etkiledi?",                     opts:["Evet, etkileyeni var","Pek okumam"]},
+  {cat:"Bonus",text:"Hiç tamamen yanlış olduğunu sonradan anladığın güçlü bir fikrin oldu mu?",       opts:["Evet oldu","Hayır olmadı"]},
+  {cat:"Bonus",text:"Bir insan için en değerli şeyin ne olduğunu düşünüyorsun — zeka mı, empati mi?",opts:["Zeka","Empati"]},
+  {cat:"Bonus",text:"Seninle aynı fikirde olmayan biriyle nasıl başa çıkıyorsun?",                    opts:["Tartışırım","Anlamaya çalışırım","Geçip giderim"]},
+  {cat:"Bonus",text:"Hayatta en çok kimi ya da neyi kaybetmekten korkuyorsun?",                       opts:["Yakınlarımı","Kendimi","Özgürlüğümü"]},
+  {cat:"Bonus",text:"10 yıl sonra nerede olmak istiyorsun?",                                           opts:["Hedefim var","Henüz bilmiyorum"]},
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
+let currentSurvey=null;
+// Çoklu kişi state
+let personCount=1;
+let personLabels=[]; // ["Erkek","Kadın"] gibi
+// Soru döngüsü state
+let qPersonIdx=0;   // şu an hangi kişinin soruları
+let qQIdx=0;        // soru indexi (QUESTIONS içinde)
+let isBonus=false;  // bonus modda mı
+let bonusQIdx=0;
+let selectedOption=null;
+// Edit
+let editDraft=null;
+let _deleteIdx=-1;
+
+// ═══════════════════════════════════════
+// EKRAN
+// ═══════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  if(id==='home') renderHome();
+}
+
+// ═══════════════════════════════════════
+// HOME TABS
+// ═══════════════════════════════════════
+function switchTab(tab){
+  document.getElementById('tab-list').classList.toggle('active',tab==='list');
+  document.getElementById('tab-stats').classList.toggle('active',tab==='stats');
+  document.getElementById('survey-list').style.display=tab==='list'?'':'none';
+  document.getElementById('home-stats-panel').style.display=tab==='stats'?'':'none';
+  if(tab==='stats') renderHomeStats();
+}
+
+// ═══════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════
+function renderHome(){
+  const list=document.getElementById('survey-list');
+  const empty=document.getElementById('empty-state');
+  document.getElementById('stat-total').textContent=surveys.length;
+  document.getElementById('stat-done').textContent=surveys.filter(s=>s.status==='done').length;
+  document.getElementById('stat-skip').textContent=surveys.filter(s=>s.status==='rejected').length;
+  Array.from(list.children).forEach(c=>{if(c.id!=='empty-state')c.remove();});
+  if(surveys.length===0){empty.style.display='flex';return;}
+  empty.style.display='none';
+  [...surveys].reverse().forEach((s,i)=>{
+    const realIdx=surveys.length-1-i;
+    const answered=s.answers?s.answers.reduce((sum,pa)=>sum+pa.filter(a=>a.selected!==null).length,0):0;
+    const pCount=s.persons?s.persons.length:1;
+    const preview=s.status==='rejected'
+      ?'Ankete katılmak istemedi.'
+      :(pCount>1?`${pCount} kişi · ${answered} cevap`:`${answered} soru cevaplandı`);
+    const card=document.createElement('div');
+    card.className='survey-card'+(s.status==='rejected'?' rejected':'');
+    card.innerHTML=`
+      <div class="card-header">
+        <div class="card-name">${s.person}</div>
+        <div class="card-badge ${s.status==='done'?'badge-done':'badge-skip'}">${s.status==='done'?'✓ Tamamlandı':'✕ Reddetti'}</div>
+      </div>
+      <div class="card-meta">🕐 ${s.date}</div>
+      <div class="card-preview">${preview}</div>`;
+    card.onclick=()=>openDetail(realIdx);
+    list.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════
+// HOME İSTATİSTİKLER PANELİ
+// ═══════════════════════════════════════
+function renderHomeStats(){
+  const panel=document.getElementById('home-stats-panel');
+  panel.innerHTML='';
+  const done=surveys.filter(s=>s.status==='done');
+  if(done.length===0){
+    panel.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Henüz veri yok</div><div class="empty-sub">Anketler tamamlandıkça burada istatistikler görünür</div></div>';
+    return;
+  }
+  // Özet satırı
+  const totalPersons=done.reduce((s,sv)=>s+(sv.persons?sv.persons.length:1),0);
+  const sumRow=document.createElement('div');
+  sumRow.innerHTML=`<div class="stats-hero" style="padding:14px 3px 10px;">
+    <div class="stats-hero-title">Genel İstatistikler</div>
+    <div class="stats-hero-sub">${done.length} tamamlanan anketten</div>
+  </div>
+  <div class="stats-summary-row">
+    <div class="stats-summary-card"><div class="ssc-num">${done.length}</div><div class="ssc-label">Anket</div></div>
+    <div class="stats-summary-card"><div class="ssc-num">${totalPersons}</div><div class="ssc-label">Katılımcı</div></div>
+    <div class="stats-summary-card"><div class="ssc-num">${surveys.filter(s=>s.status==='rejected').length}</div><div class="ssc-label">Reddetti</div></div>
+  </div>`;
+  panel.appendChild(sumRow);
+  renderQStats(panel, done, QUESTIONS, 'Ana Sorular');
+  const bonusDone=done.filter(s=>s.bonusAnswers&&s.bonusAnswers.some(pa=>pa.some(a=>a.selected!==null)));
+  if(bonusDone.length>0) renderQStats(panel, bonusDone, BONUS_QUESTIONS, 'Bonus Sorular', true);
+}
+
+function renderQStats(container, doneSurveys, questions, title, isBlue=false){
+  const secTitle=document.createElement('div');
+  secTitle.className='stats-section-title'+(isBlue?' blue':'');
+  secTitle.textContent=title;
+  container.appendChild(secTitle);
+
+  questions.forEach((q,qi)=>{
+    // Tüm kişilerin bu soruya verdiği cevapları topla
+    let counts=Array(q.opts.length).fill(0);
+    let noteOnly=0, skipped=0, total=0;
+    doneSurveys.forEach(sv=>{
+      const answersArr=isBlue?sv.bonusAnswers:sv.answers;
+      if(!answersArr) return;
+      answersArr.forEach(personAnswers=>{
+        if(!personAnswers[qi]) return;
+        total++;
+        const a=personAnswers[qi];
+        if(a.selected!==null) counts[a.selected]++;
+        else if(a.note&&a.note.trim()) noteOnly++;
+        else skipped++;
+      });
+    });
+    if(total===0) return;
+    const card=document.createElement('div');
+    card.className='stats-q-card';
+    let barsHTML='';
+    q.opts.forEach((opt,oi)=>{
+      const pct=total>0?Math.round(counts[oi]/total*100):0;
+      const colors=['','green','blue','gray'];
+      barsHTML+=`<div class="stats-bar-row">
+        <div class="stats-bar-label">${opt}</div>
+        <div class="stats-bar-track"><div class="stats-bar-fill ${colors[oi]||''}" style="width:${pct}%"></div></div>
+        <div class="stats-bar-pct">%${pct}</div>
+      </div>`;
+    });
+    if(noteOnly>0){
+      const pct=Math.round(noteOnly/total*100);
+      barsHTML+=`<div class="stats-bar-row">
+        <div class="stats-bar-label">Sadece Not</div>
+        <div class="stats-bar-track"><div class="stats-bar-fill gray" style="width:${pct}%"></div></div>
+        <div class="stats-bar-pct">%${pct}</div>
+      </div>`;
+    }
+    if(skipped>0){
+      const pct=Math.round(skipped/total*100);
+      barsHTML+=`<div class="stats-bar-row">
+        <div class="stats-bar-label">Geçildi</div>
+        <div class="stats-bar-track"><div class="stats-bar-fill gray" style="width:${pct}%"></div></div>
+        <div class="stats-bar-pct">%${pct}</div>
+      </div>`;
+    }
+    card.innerHTML=`<div class="stats-q-text">${q.text}</div>${barsHTML}`;
+    container.appendChild(card);
+  });
+}
+
+// Tek anket istatistiği
+function openSurveyStats(idx){
+  const s=surveys[idx];
+  const container=document.getElementById('survey-stats-content');
+  container.innerHTML='';
+  const hero=document.createElement('div');
+  hero.innerHTML=`<div class="stats-hero">
+    <div class="stats-hero-title">${s.person}</div>
+    <div class="stats-hero-sub">📅 ${s.date}</div>
+  </div>`;
+  container.appendChild(hero);
+  if(s.status!=='done'){
+    container.innerHTML+='<div style="padding:20px 3px;color:var(--text3);font-size:14px;">Bu ankette veri yok.</div>';
+  } else {
+    renderQStats(container,[s],QUESTIONS,'Ana Sorular');
+    if(s.bonusAnswers&&s.bonusAnswers.some(pa=>pa.some(a=>a.selected!==null)))
+      renderQStats(container,[s],BONUS_QUESTIONS,'Bonus Sorular',true);
+  }
+  showScreen('survey-stats');
+}
+
+// ═══════════════════════════════════════
+// NEW — KİŞİ SAYISI
+// ═══════════════════════════════════════
+function changeCount(delta){
+  personCount=Math.max(1,Math.min(8,personCount+delta));
+  document.getElementById('count-display').textContent=personCount;
+  const wrapper=document.getElementById('person-labels-wrapper');
+  const area=document.getElementById('person-labels-area');
+  if(personCount>1){
+    wrapper.style.display='';
+    area.innerHTML='';
+    for(let i=0;i<personCount;i++){
+      const row=document.createElement('div');row.className='person-label-row';
+      row.innerHTML=`<div class="person-num">${i+1}</div>
+        <input class="text-input" id="plabel-${i}" placeholder="Kişi ${i+1} etiketi (Örn: Erkek, Ali...)" style="height:40px;font-size:14px;padding:8px 12px;">`;
+      area.appendChild(row);
+    }
+  } else {
+    wrapper.style.display='none';
+  }
+}
+
+// ═══════════════════════════════════════
+// NEW SURVEY
+// ═══════════════════════════════════════
+function rejectSurvey(){
+  const desc=document.getElementById('person-desc').value.trim();
+  if(!desc){alert('Lütfen anket başlığını gir.');return;}
+  surveys.push({id:Date.now(),person:desc,date:formatDate(),status:'rejected',answers:[],persons:[]});
+  saveSurveys();document.getElementById('person-desc').value='';personCount=1;changeCount(0);showScreen('home');
+}
+
+function startSurvey(){
+  const desc=document.getElementById('person-desc').value.trim();
+  if(!desc){alert('Lütfen anket başlığını gir.');return;}
+  // Etiketleri al
+  personLabels=[];
+  for(let i=0;i<personCount;i++){
+    const el=document.getElementById('plabel-'+i);
+    personLabels.push(el?el.value.trim()||`Kişi ${i+1}`:`Kişi ${i+1}`);
+  }
+  currentSurvey={
+    id:Date.now(),person:desc,date:formatDate(),status:'in-progress',
+    persons:[...personLabels],
+    // answers[personIdx][qIdx]
+    answers:personLabels.map(()=>QUESTIONS.map(()=>({selected:null,note:''}))),
+    bonusAnswers:personLabels.map(()=>BONUS_QUESTIONS.map(()=>({selected:null,note:''}))),
+  };
+  qPersonIdx=0;qQIdx=0;isBonus=false;bonusQIdx=0;selectedOption=null;
+  document.getElementById('person-desc').value='';personCount=1;changeCount(0);
+  showScreen('question');renderQuestion();
+}
+
+// ═══════════════════════════════════════
+// SORU AKIŞI
+// ═══════════════════════════════════════
+function renderQuestion(){
+  const persons=currentSurvey.persons;
+  const multiPerson=persons.length>1;
+  // Akış: Soru 1 Kişi A → Soru 1 Kişi B → Soru 2 Kişi A → Soru 2 Kişi B → ...
+  // qQIdx = soru index, qPersonIdx = o sorudaki kişi index
+  const totalSteps = isBonus
+    ? BONUS_QUESTIONS.length * persons.length
+    : QUESTIONS.length * persons.length;
+  const currentStep = isBonus
+    ? bonusQIdx * persons.length + qPersonIdx + 1
+    : qQIdx * persons.length + qPersonIdx + 1;
+
+  if(isBonus){
+    const q=BONUS_QUESTIONS[bonusQIdx];
+    const ans=currentSurvey.bonusAnswers[qPersonIdx][bonusQIdx];
+    document.getElementById('q-category').textContent='✨ Bonus';
+    document.getElementById('q-category').className='q-category bonus';
+    document.getElementById('q-progress').className='q-progress-fill bonus';
+    document.getElementById('q-counter').textContent=`${currentStep} / ${totalSteps}${multiPerson?' · '+persons[qPersonIdx]:''}`;
+    document.getElementById('q-text').textContent=q.text;
+    document.getElementById('q-progress').style.width=(currentStep/totalSteps*100)+'%';
+    document.getElementById('q-note').value=ans.note||'';
+    selectedOption=ans.selected;
+    renderOpts(q.opts,selectedOption);
+    const isLast=(bonusQIdx===BONUS_QUESTIONS.length-1&&qPersonIdx===persons.length-1);
+    document.getElementById('btn-next').textContent=isLast?'Tamamla ✓':'Sonraki →';
+    document.getElementById('btn-next').className='btn-next bonus';
+  } else {
+    const q=QUESTIONS[qQIdx];
+    const ans=currentSurvey.answers[qPersonIdx][qQIdx];
+    document.getElementById('q-category').textContent=q.cat;
+    document.getElementById('q-category').className='q-category';
+    document.getElementById('q-progress').className='q-progress-fill';
+    document.getElementById('q-counter').textContent=`${currentStep} / ${totalSteps}${multiPerson?' · '+persons[qPersonIdx]:''}`;
+    document.getElementById('q-text').textContent=q.text;
+    document.getElementById('q-progress').style.width=(currentStep/totalSteps*100)+'%';
+    document.getElementById('q-note').value=ans.note||'';
+    selectedOption=ans.selected;
+    renderOpts(q.opts,selectedOption);
+    const isLast=(qQIdx===QUESTIONS.length-1&&qPersonIdx===persons.length-1);
+    document.getElementById('btn-next').textContent=isLast?'Tamamla ✓':'Sonraki →';
+    document.getElementById('btn-next').className='btn-next';
+  }
+  // Kişi etiketi
+  const tag=document.getElementById('q-person-tag');
+  if(multiPerson){tag.style.display='inline-block';tag.textContent='👤 '+persons[qPersonIdx];}
+  else{tag.style.display='none';}
+}
+
+function renderOpts(opts,sel){
+  const optC=document.getElementById('q-options');optC.innerHTML='';
+  opts.forEach((opt,i)=>{
+    const btn=document.createElement('div');
+    btn.className='q-option'+(sel===i?' selected':'');
+    btn.innerHTML=`<div class="q-option-dot"></div>${opt}`;
+    btn.onclick=()=>selectOption(i);optC.appendChild(btn);
+  });
+}
+
+function selectOption(i){
+  selectedOption=i;
+  document.querySelectorAll('.q-option').forEach((el,idx)=>el.classList.toggle('selected',idx===i));
+}
+
+function nextQuestion(){
+  const persons=currentSurvey.persons;
+  if(isBonus){
+    currentSurvey.bonusAnswers[qPersonIdx][bonusQIdx].selected=selectedOption;
+    currentSurvey.bonusAnswers[qPersonIdx][bonusQIdx].note=document.getElementById('q-note').value.trim();
+    // Önce sonraki kişi, kişi bittiyse sonraki soru
+    if(qPersonIdx<persons.length-1){qPersonIdx++;selectedOption=null;renderQuestion();}
+    else if(bonusQIdx<BONUS_QUESTIONS.length-1){bonusQIdx++;qPersonIdx=0;selectedOption=null;renderQuestion();}
+    else{finishSurveyFinal();}
+  } else {
+    currentSurvey.answers[qPersonIdx][qQIdx].selected=selectedOption;
+    currentSurvey.answers[qPersonIdx][qQIdx].note=document.getElementById('q-note').value.trim();
+    // Önce sonraki kişi, kişi bittiyse sonraki soru
+    if(qPersonIdx<persons.length-1){qPersonIdx++;selectedOption=null;renderQuestion();}
+    else if(qQIdx<QUESTIONS.length-1){qQIdx++;qPersonIdx=0;selectedOption=null;renderQuestion();}
+    else{showScreen('bonus');}
+  }
+}
+
+function startBonus(){
+  qPersonIdx=0;bonusQIdx=0;isBonus=true;selectedOption=null;
+  showScreen('question');renderQuestion();
+}
+
+function finishSurveyFinal(){
+  currentSurvey.status='done';surveys.push(currentSurvey);saveSurveys();
+  const totalAns=currentSurvey.answers.reduce((s,pa)=>s+pa.filter(a=>a.selected!==null).length,0);
+  document.getElementById('done-sub').textContent=`${currentSurvey.persons.length} kişi · ${totalAns} cevap kaydedildi.`;
+  showScreen('done');
+}
+
+function finishAndGoHome(){currentSurvey=null;showScreen('home');}
+
+// ═══════════════════════════════════════
+// DETAIL
+// ═══════════════════════════════════════
+function openDetail(idx){
+  window._detailIdx=idx;
+  const s=surveys[idx];
+  const container=document.getElementById('detail-content');
+  container.innerHTML='';
+  // Hero
+  const hero=document.createElement('div');hero.className='detail-hero';
+  const persons=s.persons&&s.persons.length>0?s.persons:['Kişi'];
+  const multiP=persons.length>1;
+  let personsHTML=multiP?`<div class="detail-persons-row">${persons.map(p=>`<div class="person-chip">👤 ${p}</div>`).join('')}</div>`:'';
+  hero.innerHTML=`<div class="detail-person">${s.person}</div>
+    <div class="detail-meta">📅 ${s.date} · ${s.status==='done'?'✓ Tamamlandı':'✕ Reddetti'}</div>${personsHTML}`;
+  container.appendChild(hero);
+
+  if(s.status==='rejected'){
+    const msg=document.createElement('div');
+    msg.style.cssText='padding:18px 3px;color:var(--text3);font-size:14px;';
+    msg.textContent='Bu kişi ankete katılmak istemedi.';
+    container.appendChild(msg);
+  } else {
+    renderDetailQuestions(container,s,QUESTIONS,s.answers,persons,multiP,false);
+    const hasBonusData=s.bonusAnswers&&s.bonusAnswers.some(pa=>pa.some(a=>a.selected!==null||a.note));
+    if(hasBonusData) renderDetailQuestions(container,s,BONUS_QUESTIONS,s.bonusAnswers,persons,multiP,true);
+  }
+  showScreen('detail');
+}
+
+function renderDetailQuestions(container,s,questions,answersMatrix,persons,multiP,isBlue){
+  const cats={};
+  questions.forEach((q,i)=>{cats[q.cat]=cats[q.cat]||[];cats[q.cat].push({q,qi:i});});
+  Object.entries(cats).forEach(([cat,items])=>{
+    const sec=document.createElement('div');sec.className='detail-section';
+    sec.innerHTML=`<div class="detail-section-title${isBlue?' bonus-title-sec':''}">${isBlue?'✨ ':''} ${cat}</div>`;
+    items.forEach(({q,qi})=>{
+      const card=document.createElement('div');card.className='detail-q-card';
+      let answersHTML='';
+      if(multiP){
+        answersHTML='<div class="detail-persons-answers">';
+        persons.forEach((p,pi)=>{
+          const ans=answersMatrix[pi]?answersMatrix[pi][qi]:null;
+          if(!ans){answersHTML+=`<div class="detail-person-answer"><div class="dpa-label">${p}</div><div class="detail-skipped">— Geçildi</div></div>`;return;}
+          const chip=ans.selected!==null
+            ?`<div><div class="detail-answer-chip">${q.opts[ans.selected]}</div>${ans.note?`<div class="detail-note">💬 ${ans.note}</div>`:''}</div>`
+            :(ans.note?`<div class="detail-note">💬 ${ans.note}</div>`:`<div class="detail-skipped">— Geçildi</div>`);
+          answersHTML+=`<div class="detail-person-answer"><div class="dpa-label">${p}</div>${chip}</div>`;
+        });
+        answersHTML+='</div>';
+      } else {
+        const ans=answersMatrix[0]?answersMatrix[0][qi]:null;
+        if(ans&&ans.selected!==null) answersHTML=`<div class="detail-answer-chip">${q.opts[ans.selected]}</div>${ans.note?`<div class="detail-note">💬 ${ans.note}</div>`:''}`;
+        else if(ans&&ans.note) answersHTML=`<div class="detail-note">💬 ${ans.note}</div>`;
+        else answersHTML=`<div class="detail-skipped">— Geçildi</div>`;
+      }
+      card.innerHTML=`<div class="detail-q-text">${q.text}</div>${answersHTML}`;
+      sec.appendChild(card);
+    });
+    container.appendChild(sec);
+  });
+}
+
+// ═══════════════════════════════════════
+// EDIT
+// ═══════════════════════════════════════
+function openEdit(idx){
+  window._editIdx=idx;
+  editDraft=JSON.parse(JSON.stringify(surveys[idx]));
+  const container=document.getElementById('edit-content');
+  container.innerHTML='';
+
+  // Kişi tanımı + hızlı kaydet
+  const s0=document.createElement('div');
+  s0.innerHTML=`<div class="edit-section-title">Kişi / Grup Tanımı</div>
+    <div class="edit-field">
+      <textarea class="edit-input" id="edit-person" rows="2">${editDraft.person}</textarea>
+      <button class="edit-quick-save" onclick="quickSaveTitle()">Başlığı Kaydet ✓</button>
+    </div>`;
+  container.appendChild(s0);
+
+  // Tarih
+  const s1=document.createElement('div');
+  s1.innerHTML=`<div class="edit-section-title">Tarih & Saat</div>
+    <div class="edit-field">
+      <input class="edit-input" id="edit-date" type="text" value="${editDraft.date}">
+    </div>`;
+  container.appendChild(s1);
+
+  if(editDraft.status==='done'){
+    // Kişi etiketleri
+    if(editDraft.persons&&editDraft.persons.length>1){
+      const sp=document.createElement('div');
+      sp.innerHTML=`<div class="edit-section-title">Kişi Etiketleri</div>`;
+      editDraft.persons.forEach((p,pi)=>{
+        const row=document.createElement('div');row.className='edit-field';
+        row.innerHTML=`<div class="edit-label">Kişi ${pi+1}</div>
+          <input class="edit-input" id="edit-plabel-${pi}" type="text" value="${p}">`;
+        sp.appendChild(row);
+      });
+      container.appendChild(sp);
+    }
+    // Cevaplar
+    buildEditAnswers(container,QUESTIONS,editDraft.answers,'Cevaplar & Notlar',false);
+    if(editDraft.bonusAnswers) buildEditAnswers(container,BONUS_QUESTIONS,editDraft.bonusAnswers,'Bonus Cevaplar',true);
+  }
+  showScreen('edit');
+}
+
+function buildEditAnswers(container,questions,answersMatrix,title,isBlue){
+  const persons=editDraft.persons&&editDraft.persons.length>0?editDraft.persons:['Kişi'];
+  const multiP=persons.length>1;
+  const sec=document.createElement('div');
+  sec.innerHTML=`<div class="edit-section-title">${title}</div>`;
+  questions.forEach((q,qi)=>{
+    const card=document.createElement('div');card.className='edit-q-card';
+    card.innerHTML=`<div class="edit-q-text">${q.text}</div>`;
+    persons.forEach((p,pi)=>{
+      const ans=answersMatrix[pi]?answersMatrix[pi][qi]:null;
+      if(!ans) return;
+      const wrapper=document.createElement('div');
+      if(multiP){wrapper.className='edit-person-section';wrapper.innerHTML=`<div class="edit-person-label">👤 ${p}</div>`;}
+      const optRow=document.createElement('div');optRow.className='edit-opts';optRow.id=`eo-${isBlue?'b':'a'}-${pi}-${qi}`;
+      q.opts.forEach((opt,oi)=>{
+        const btn=document.createElement('button');
+        btn.className='edit-opt-btn'+(ans.selected===oi?' selected':'');
+        btn.textContent=opt;
+        btn.onclick=()=>editSelectOpt(isBlue,pi,qi,oi);
+        optRow.appendChild(btn);
+      });
+      const clearBtn=document.createElement('button');
+      clearBtn.className='edit-opt-btn clear-sel';clearBtn.textContent='Geç';
+      clearBtn.onclick=()=>editSelectOpt(isBlue,pi,qi,null);
+      optRow.appendChild(clearBtn);
+      const noteEl=document.createElement('textarea');
+      noteEl.className='edit-note-input';noteEl.id=`en-${isBlue?'b':'a'}-${pi}-${qi}`;
+      noteEl.placeholder='Not ekle...';noteEl.value=ans.note||'';
+      wrapper.appendChild(optRow);wrapper.appendChild(noteEl);
+      card.appendChild(wrapper);
+    });
+    sec.appendChild(card);
+  });
+  container.appendChild(sec);
+}
+
+function editSelectOpt(isBlue,pi,qi,optIdx){
+  if(isBlue) editDraft.bonusAnswers[pi][qi].selected=optIdx;
+  else editDraft.answers[pi][qi].selected=optIdx;
+  const rowId=`eo-${isBlue?'b':'a'}-${pi}-${qi}`;
+  const row=document.getElementById(rowId);
+  if(row) row.querySelectorAll('.edit-opt-btn:not(.clear-sel)').forEach((b,i)=>b.classList.toggle('selected',i===optIdx));
+}
+
+function quickSaveTitle(){
+  const idx=window._editIdx;
+  const newTitle=document.getElementById('edit-person').value.trim();
+  if(newTitle){surveys[idx].person=newTitle;if(editDraft)editDraft.person=newTitle;saveSurveys();}
+  // Görsel feedback
+  const btn=document.querySelector('.edit-quick-save');
+  btn.textContent='Kaydedildi ✓';btn.style.background='var(--green)';
+  setTimeout(()=>{btn.textContent='Başlığı Kaydet ✓';btn.style.background='';},1500);
+}
+
+function saveEdit(){
+  const idx=window._editIdx;
+  editDraft.person=document.getElementById('edit-person').value.trim()||editDraft.person;
+  editDraft.date=document.getElementById('edit-date').value.trim()||editDraft.date;
+  if(editDraft.persons){
+    editDraft.persons.forEach((_,pi)=>{
+      const el=document.getElementById('edit-plabel-'+pi);
+      if(el) editDraft.persons[pi]=el.value.trim()||editDraft.persons[pi];
+    });
+  }
+  if(editDraft.status==='done'){
+    QUESTIONS.forEach((_,qi)=>{
+      editDraft.answers.forEach((_,pi)=>{
+        const el=document.getElementById(`en-a-${pi}-${qi}`);
+        if(el&&editDraft.answers[pi][qi]) editDraft.answers[pi][qi].note=el.value.trim();
+      });
+    });
+    if(editDraft.bonusAnswers){
+      BONUS_QUESTIONS.forEach((_,qi)=>{
+        editDraft.bonusAnswers.forEach((_,pi)=>{
+          const el=document.getElementById(`en-b-${pi}-${qi}`);
+          if(el&&editDraft.bonusAnswers[pi][qi]) editDraft.bonusAnswers[pi][qi].note=el.value.trim();
+        });
+      });
+    }
+  }
+  surveys[idx]=editDraft;saveSurveys();
+  window._detailIdx=idx;openDetail(idx);
+}
+
+// ═══════════════════════════════════════
+// DELETE
+// ═══════════════════════════════════════
+function openDeleteConfirm(idx){
+  _deleteIdx=idx;
+  document.getElementById('delete-sub').textContent=`"${surveys[idx].person}" adlı anketi kalıcı olarak silmek istediğinden emin misin?`;
+  document.getElementById('delete-overlay').classList.add('open');
+}
+function closeDeleteConfirm(){document.getElementById('delete-overlay').classList.remove('open');}
+function confirmDelete(){surveys.splice(_deleteIdx,1);saveSurveys();closeDeleteConfirm();showScreen('home');}
+
+// ═══════════════════════════════════════
+// UTIL
+// ═══════════════════════════════════════
+function saveSurveys(){localStorage.setItem('surveys',JSON.stringify(surveys));}
+function formatDate(){
+  const now=new Date();
+  return now.toLocaleDateString('tr-TR',{day:'2-digit',month:'short',year:'numeric'})
+    +' '+now.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+}
+
+// Eski format uyumluluğu (tek kişilik eski anketler)
+surveys=surveys.map(s=>{
+  if(!s.persons) s.persons=[];
+  if(!Array.isArray(s.answers[0])) s.answers=[s.answers];
+  if(!s.bonusAnswers) s.bonusAnswers=s.persons.length>0?s.persons.map(()=>BONUS_QUESTIONS.map(()=>({selected:null,note:''}))):[[...BONUS_QUESTIONS.map(()=>({selected:null,note:''}))]]
+  return s;
+});
+
+function importData(event){
+  const file=event.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const imported=JSON.parse(e.target.result);
+      if(!Array.isArray(imported)) throw new Error('Geçersiz format');
+      const converted=imported.map(s=>{
+        if(!s.persons) s.persons=[];
+        if(s.answers&&!Array.isArray(s.answers[0])) s.answers=[s.answers];
+        if(!s.bonusAnswers) s.bonusAnswers=[[...BONUS_QUESTIONS.map(()=>({selected:null,note:''}))]]
+        return s;
+      });
+      const importedIds=new Set(converted.map(s=>s.id));
+      const onlyLocal=surveys.filter(s=>!importedIds.has(s.id));
+      surveys=[...converted,...onlyLocal];
+      saveSurveys();
+      renderHome();
+      alert(`✓ ${converted.length} anket başarıyla aktarıldı!`);
+    } catch(err){
+      alert('Hata: Geçersiz dosya. Lütfen eski uygulamadan indirdiğin JSON dosyasını seç.');
+    }
+    event.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+renderHome();
+</script>
+</body>
+</html>
