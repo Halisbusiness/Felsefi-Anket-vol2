@@ -231,6 +231,7 @@ html,body{width:375px;max-width:375px;min-height:667px;background:var(--bg);colo
     <button class="tab-btn" id="tab-stats" onclick="switchTab('stats')">İstatistikler</button>
   </div>
   <div class="export-bar">
+    <button class="btn-import" onclick="exportAllData()" style="margin-bottom:7px;background:rgba(30,158,74,0.12);border-color:rgba(30,158,74,0.3);color:#1e9e4a;">⬇️ Tüm Veriyi Dışa Aktar (JSON)</button>
     <input type="file" id="import-input" accept=".json" onchange="importData(event)">
     <button class="btn-import" onclick="document.getElementById('import-input').click()">⬆️ Eski Verilerimi Aktar</button>
   </div>
@@ -952,6 +953,16 @@ function confirmDelete(){surveys.splice(_deleteIdx,1);saveSurveys();closeDeleteC
 // ═══════════════════════════════════════
 // UTIL
 // ═══════════════════════════════════════
+function exportAllData(){
+  if(surveys.length===0){alert('Dışa aktarılacak veri yok.');return;}
+  const blob=new Blob([JSON.stringify(surveys,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='felsefi_anket_veriler.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a);},1000);
+}
+
 function saveSurveys(){localStorage.setItem('surveys',JSON.stringify(surveys));}
 function formatDate(){
   const now=new Date();
